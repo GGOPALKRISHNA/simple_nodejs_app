@@ -20,7 +20,7 @@ mongoose.connect(process.env.MONGO_URI , {
 app.use('/sales', saleRoutes)
 
 
-const port = process.env.PORT || 3000;
-app.listen(port, ()=>{
+const port = process.env.PORT;
+app.listen(port,'0.0.0.0' , ()=>{
     console.log('server is running in port : ', port);
 })
