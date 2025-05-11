@@ -1,0 +1,44 @@
+version: "3.8"
+services:
+  mongo:
+    container_name: "mongo"
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mondo_data:/data/db
+    networks:
+      - demo-network
+    restart: always
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh -u admin -p password --quite || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  node:
+    build:
+      context: .
+    container_name: node_app
+    ports:
+      - "3000:3000"
+    networks:
+      - demo-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test:["CMD","curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  mondo_data:
+networks:
+  demo-network:
